@@ -69,4 +69,4 @@ class ObservationModel():
         for k in p:
             p[k] = p[k]/scale
 
-        return p, np.log(p[hmm_label])
+        return np.log(p[hmm_label])
