@@ -7,7 +7,7 @@ from pexpect import TIMEOUT, EOF
 
 
 class ObservationModel:
-    def __init__(self, debug=False):
+    def __init__(self, debug=False, kaldi_dir=None):
         self.debug = debug
         self.timesteps = 0
         self.loaded = False
@@ -16,6 +16,12 @@ class ObservationModel:
         self.bindir = "/group/teaching/asr/labs/bin/"
         self.nnet = None
         self.state_map = self.load_state_map("{}/conf/pdfsmap".format(self.nnetdir))
+        if not kaldi_dir:
+            path = ['/group/teaching/asr/labs/bin/lib/',
+                    '/opt/intel/compilers_and_libraries_2019.5.281/linux/mkl/lib/intel64_lin/']
+            self.path = ':'.join(path)
+        else:
+            self.path = '{kd}/tools/openfst-1.6.5/lib/'.format(kd=kaldi_dir)
 
     def load_state_map(self, map_fn):
         state_map = {}
@@ -37,7 +43,7 @@ class ObservationModel:
                                "--global-cmvn-stats={}/conf/cmvn.gstat".format(self.nnetdir),
                                "{}/final.mdl".format(self.nnetdir),
                                "{}/den.fst".format(self.nnetdir),
-                               "scp:-", "ark,t:-"])
+                               "scp:-", "ark,t:-"], env={'LD_LIBRARY_PATH': self.path})
         try:
             self.nnet.expect("Ready.")
         except (TIMEOUT, EOF):
